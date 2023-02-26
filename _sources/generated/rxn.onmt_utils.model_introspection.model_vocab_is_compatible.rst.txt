@@ -1,0 +1,6 @@
+rxn.onmt\_utils.model\_introspection.model\_vocab\_is\_compatible
+=================================================================
+
+.. currentmodule:: rxn.onmt_utils.model_introspection
+
+.. autofunction:: model_vocab_is_compatible

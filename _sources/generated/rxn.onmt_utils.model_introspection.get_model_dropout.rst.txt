@@ -1,0 +1,6 @@
+rxn.onmt\_utils.model\_introspection.get\_model\_dropout
+========================================================
+
+.. currentmodule:: rxn.onmt_utils.model_introspection
+
+.. autofunction:: get_model_dropout

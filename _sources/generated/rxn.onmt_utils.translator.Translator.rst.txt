@@ -1,0 +1,30 @@
+rxn.onmt\_utils.translator.Translator
+=====================================
+
+.. currentmodule:: rxn.onmt_utils.translator
+
+.. autoclass:: Translator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Translator.__init__
+      ~Translator.from_model_path
+      ~Translator.from_opt
+      ~Translator.translate_multiple_with_scores
+      ~Translator.translate_sentences
+      ~Translator.translate_single
+   
+   
+
+   
+   
+   

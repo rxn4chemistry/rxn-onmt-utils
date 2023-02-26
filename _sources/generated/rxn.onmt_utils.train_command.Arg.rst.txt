@@ -1,0 +1,25 @@
+rxn.onmt\_utils.train\_command.Arg
+==================================
+
+.. currentmodule:: rxn.onmt_utils.train_command
+
+.. autoclass:: Arg
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Arg.__init__
+   
+   
+
+   
+   
+   

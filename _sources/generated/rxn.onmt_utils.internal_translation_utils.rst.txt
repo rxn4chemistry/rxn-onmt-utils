@@ -1,0 +1,40 @@
+rxn.onmt\_utils.internal\_translation\_utils
+============================================
+
+.. automodule:: rxn.onmt_utils.internal_translation_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      get_onmt_opt
+      onmt_parser
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      RawTranslator
+      TranslationResult
+   
+   
+
+   
+   
+   
+
+
+

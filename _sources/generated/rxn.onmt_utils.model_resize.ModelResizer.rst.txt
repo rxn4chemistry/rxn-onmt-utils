@@ -1,0 +1,27 @@
+rxn.onmt\_utils.model\_resize.ModelResizer
+==========================================
+
+.. currentmodule:: rxn.onmt_utils.model_resize
+
+.. autoclass:: ModelResizer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ModelResizer.__init__
+      ~ModelResizer.extend_vocab
+      ~ModelResizer.save_checkpoint
+   
+   
+
+   
+   
+   

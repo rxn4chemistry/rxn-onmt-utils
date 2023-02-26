@@ -1,0 +1,31 @@
+rxn.onmt\_utils.train\_command.RxnCommand
+=========================================
+
+.. currentmodule:: rxn.onmt_utils.train_command
+
+.. autoclass:: RxnCommand
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RxnCommand.T
+      ~RxnCommand.C
+      ~RxnCommand.F
+      ~RxnCommand.TC
+      ~RxnCommand.TF
+      ~RxnCommand.CF
+      ~RxnCommand.TCF
+   
+   

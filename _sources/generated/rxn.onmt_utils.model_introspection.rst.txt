@@ -1,0 +1,36 @@
+rxn.onmt\_utils.model\_introspection
+====================================
+
+.. automodule:: rxn.onmt_utils.model_introspection
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      get_model_dropout
+      get_model_opt
+      get_model_rnn_size
+      get_model_seed
+      get_model_vocab
+      get_preprocessed_vocab
+      model_vocab_is_compatible
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

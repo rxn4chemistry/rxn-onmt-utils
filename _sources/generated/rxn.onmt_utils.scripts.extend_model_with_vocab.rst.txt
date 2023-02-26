@@ -1,0 +1,23 @@
+rxn.onmt\_utils.scripts.extend\_model\_with\_vocab
+==================================================
+
+.. automodule:: rxn.onmt_utils.scripts.extend_model_with_vocab
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

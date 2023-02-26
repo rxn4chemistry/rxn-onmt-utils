@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.onmt_utils.model_resize &mdash; RXN OpenNMT utilities 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN OpenNMT utilities
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN OpenNMT utilities</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.onmt_utils.model_resize</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.onmt_utils.model_resize</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">from</span> <span class="nn">onmt.model_builder</span> <span class="kn">import</span> <span class="n">build_model</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">onmt.utils.parse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.files</span> <span class="kn">import</span> <span class="n">PathLike</span>
+<span class="kn">from</span> <span class="nn">torch.nn.init</span> <span class="kn">import</span> <span class="n">xavier_uniform_</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="init_parameters"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_resize.init_parameters.html#rxn.onmt_utils.model_resize.init_parameters">[docs]</a><span class="k">def</span> <span class="nf">init_parameters</span><span class="p">(</span><span class="n">model_opt</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialise extended weights</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_opt ([type]): original model opts</span>
+<span class="sd">        parameters ([type]): newly created weights</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model_opt</span><span class="o">.</span><span class="n">param_init</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">parameters</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="o">-</span><span class="n">model_opt</span><span class="o">.</span><span class="n">param_init</span><span class="p">,</span> <span class="n">model_opt</span><span class="o">.</span><span class="n">param_init</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model_opt</span><span class="o">.</span><span class="n">param_init_glorot</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">xavier_uniform_</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parameters</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># If there is only one dimension: the parameters are likely to</span>
+            <span class="c1"># correspond to a bias vector -&gt; set to zero.</span>
+            <span class="n">parameters</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ModelResizer"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_resize.ModelResizer.html#rxn.onmt_utils.model_resize.ModelResizer">[docs]</a><span class="k">class</span> <span class="nc">ModelResizer</span><span class="p">:</span>
+<div class="viewcode-block" id="ModelResizer.__init__"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_resize.ModelResizer.html#rxn.onmt_utils.model_resize.ModelResizer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resizing pretrained onmt models for training on extended vocab.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_path: Path to model checkpoint</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+            <span class="n">model_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="k">lambda</span> <span class="n">storage</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="n">storage</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;vocab&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="o">.</span><span class="n">ckpt_model_opts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;opt&quot;</span><span class="p">])</span>
+        <span class="n">ArgumentParser</span><span class="o">.</span><span class="n">update_model_opts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="p">)</span>
+        <span class="n">ArgumentParser</span><span class="o">.</span><span class="n">validate_model_opts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="p">)</span>
+
+        <span class="c1"># make it CUDA independent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="o">.</span><span class="n">gpu</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="o">.</span><span class="n">gpu_ranks</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">build_model</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelResizer.extend_vocab"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_resize.ModelResizer.html#rxn.onmt_utils.model_resize.ModelResizer.extend_vocab">[docs]</a>    <span class="k">def</span> <span class="nf">extend_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_vocab_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extend vocab and size of a model using a new vocab file</span>
+<span class="sd">        s</span>
+<span class="sd">        Args:</span>
+<span class="sd">            new_vocab_path: Path to new vocab file (vocab.pt generated by ONMT)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_vocab</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+            <span class="n">new_vocab_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="k">lambda</span> <span class="n">storage</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="n">storage</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extend_field_vocab</span><span class="p">(</span><span class="n">new_vocab</span><span class="p">,</span> <span class="s2">&quot;src&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extend_field_vocab</span><span class="p">(</span><span class="n">new_vocab</span><span class="p">,</span> <span class="s2">&quot;tgt&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resize_encoder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resize_decoder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resize_generator</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_extend_field_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_vocab</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extends model vocab with new vocab and returns the added tokens as a list.&quot;&quot;&quot;</span>
+        <span class="c1"># check the tokens and enlarge encoder</span>
+        <span class="c1"># Update frequency as well (?)</span>
+        <span class="n">added_tokens</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">new_vocab</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">itos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">stoi</span><span class="p">:</span>
+                <span class="n">added_tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">itos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">stoi</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">itos</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">added_tokens</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> tokens:</span><span class="se">\n</span><span class="si">{</span><span class="n">added_tokens</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">added_tokens</span>
+
+    <span class="k">def</span> <span class="nf">_resize_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_embeddings</span><span class="p">,</span> <span class="n">num_added_tokens</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">sparse</span> <span class="o">=</span> <span class="n">old_embeddings</span><span class="o">.</span><span class="n">sparse</span>
+        <span class="n">padding_idx</span> <span class="o">=</span> <span class="n">old_embeddings</span><span class="o">.</span><span class="n">padding_idx</span>
+        <span class="n">embedding_dim</span> <span class="o">=</span> <span class="n">old_embeddings</span><span class="o">.</span><span class="n">embedding_dim</span>
+
+        <span class="n">weight_extension</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">num_added_tokens</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="p">,</span> <span class="n">weight_extension</span><span class="p">)</span>
+        <span class="n">new_weights</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">old_embeddings</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">weight_extension</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
+        <span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">new_embeddings</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span>
+            <span class="n">new_weights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">embedding_dim</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">,</span> <span class="n">padding_idx</span><span class="o">=</span><span class="n">padding_idx</span>
+        <span class="p">)</span>
+
+        <span class="n">new_embeddings</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">({</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">new_weights</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">new_embeddings</span>
+
+    <span class="k">def</span> <span class="nf">_resize_encoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">old_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">make_embedding</span><span class="o">.</span><span class="n">emb_luts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">num_added_tokens</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span> <span class="o">-</span> <span class="n">old_embeddings</span><span class="o">.</span><span class="n">num_embeddings</span>
+        <span class="p">)</span>
+
+        <span class="n">new_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resize_embedding</span><span class="p">(</span><span class="n">old_embeddings</span><span class="p">,</span> <span class="n">num_added_tokens</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">make_embedding</span><span class="o">.</span><span class="n">emb_luts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_embeddings</span>
+
+    <span class="k">def</span> <span class="nf">_resize_decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">old_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">make_embedding</span><span class="o">.</span><span class="n">emb_luts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">num_added_tokens</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="s2">&quot;tgt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span> <span class="o">-</span> <span class="n">old_embeddings</span><span class="o">.</span><span class="n">num_embeddings</span>
+        <span class="p">)</span>
+
+        <span class="n">new_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resize_embedding</span><span class="p">(</span><span class="n">old_embeddings</span><span class="p">,</span> <span class="n">num_added_tokens</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">make_embedding</span><span class="o">.</span><span class="n">emb_luts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_embeddings</span>
+
+    <span class="k">def</span> <span class="nf">_resize_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">old_linear</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">generator</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">num_added_tokens</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="s2">&quot;tgt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span> <span class="o">-</span> <span class="n">old_linear</span><span class="o">.</span><span class="n">out_features</span>
+        <span class="p">)</span>
+
+        <span class="n">weight_extension</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">num_added_tokens</span><span class="p">,</span> <span class="n">old_linear</span><span class="o">.</span><span class="n">in_features</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="p">)</span>
+        <span class="n">init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="p">,</span> <span class="n">weight_extension</span><span class="p">)</span>
+
+        <span class="n">new_weights</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">old_linear</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">weight_extension</span><span class="o">.</span><span class="n">data</span><span class="p">])</span>
+        <span class="p">)</span>
+
+        <span class="n">bias_extension</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">num_added_tokens</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+        <span class="n">init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="p">,</span> <span class="n">bias_extension</span><span class="p">)</span>
+        <span class="n">new_bias</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">old_linear</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span> <span class="n">bias_extension</span><span class="o">.</span><span class="n">data</span><span class="p">]))</span>  <span class="c1"># type: ignore</span>
+
+        <span class="n">new_linear</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+            <span class="n">old_linear</span><span class="o">.</span><span class="n">in_features</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="s2">&quot;tgt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">new_linear</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">({</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">new_weights</span><span class="p">,</span> <span class="s2">&quot;bias&quot;</span><span class="p">:</span> <span class="n">new_bias</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">generator</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_linear</span>
+
+<div class="viewcode-block" id="ModelResizer.save_checkpoint"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_resize.ModelResizer.html#rxn.onmt_utils.model_resize.ModelResizer.save_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">save_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save checkpoint of resized model</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            save_path: output path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_state_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+        <span class="n">model_state_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">model_state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="s2">&quot;generator&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">k</span>
+        <span class="p">}</span>
+        <span class="n">generator_state_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">generator</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span>
+
+        <span class="n">checkpoint</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model_state_dict</span><span class="p">,</span>
+            <span class="s2">&quot;generator&quot;</span><span class="p">:</span> <span class="n">generator_state_dict</span><span class="p">,</span>
+            <span class="s2">&quot;vocab&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span>
+            <span class="s2">&quot;opt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_opt</span><span class="p">,</span>
+            <span class="s2">&quot;optim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;optim&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving checkpoint to </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2023.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

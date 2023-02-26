@@ -1,0 +1,32 @@
+rxn.onmt\_utils.internal\_translation\_utils.TranslationResult
+==============================================================
+
+.. currentmodule:: rxn.onmt_utils.internal_translation_utils
+
+.. autoclass:: TranslationResult
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TranslationResult.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TranslationResult.text
+      ~TranslationResult.score
+   
+   

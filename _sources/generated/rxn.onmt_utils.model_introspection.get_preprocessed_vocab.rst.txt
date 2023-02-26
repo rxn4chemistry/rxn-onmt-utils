@@ -1,0 +1,6 @@
+rxn.onmt\_utils.model\_introspection.get\_preprocessed\_vocab
+=============================================================
+
+.. currentmodule:: rxn.onmt_utils.model_introspection
+
+.. autofunction:: get_preprocessed_vocab

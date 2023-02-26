@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RXN package for OpenNMT-related utilities &mdash; RXN OpenNMT utilities 0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="RXN OpenNMT utilities" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> RXN OpenNMT utilities
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">README</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#system-requirements">System Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation-guide">Installation guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#package-highlights">Package highlights</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#translate-with-opennmt-from-python-code">Translate with OpenNMT from Python code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stripping-models">Stripping models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extending-the-model-vocabulary">Extending the model vocabulary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">RXN OpenNMT utilities</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>RXN package for OpenNMT-related utilities</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/README.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rxn-package-for-opennmt-related-utilities">
+<h1>RXN package for OpenNMT-related utilities<a class="headerlink" href="#rxn-package-for-opennmt-related-utilities" title="Permalink to this heading"></a></h1>
+<p><a class="reference external" href="https://github.com/rxn4chemistry/rxn-onmt-utils/actions"><img alt="Actions tests" src="https://github.com/rxn4chemistry/rxn-onmt-utils/actions/workflows/tests.yaml/badge.svg" /></a></p>
+<p>This repository contains OpenNMT-related utilities used in the RXN universe.
+For general utilities not related to OpenNMT, see our other repository <a class="reference external" href="https://github.com/rxn4chemistry/rxn-utilities"><code class="docutils literal notranslate"><span class="pre">rxn-utilities</span></code></a>.</p>
+<p>The documentation can be found <a class="reference external" href="https://rxn4chemistry.github.io/rxn-onmt-utils/">here</a>.</p>
+<section id="system-requirements">
+<h2>System Requirements<a class="headerlink" href="#system-requirements" title="Permalink to this heading"></a></h2>
+<p>This package is supported on all operating systems.
+It has been tested on the following systems:</p>
+<ul class="simple">
+<li><p>macOS: Big Sur (11.1)</p></li>
+<li><p>Linux: Ubuntu 18.04.4</p></li>
+</ul>
+<p>A Python version of 3.6, 3.7, or 3.8 is recommended.
+Python versions 3.9 and above are not expected to work due to compatibility with the selected version of OpenNMT.</p>
+</section>
+<section id="installation-guide">
+<h2>Installation guide<a class="headerlink" href="#installation-guide" title="Permalink to this heading"></a></h2>
+<p>The package can be installed from Pypi:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>rxn-onmt-utils
+</pre></div>
+</div>
+<p>For local development, the package can be installed with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="package-highlights">
+<h2>Package highlights<a class="headerlink" href="#package-highlights" title="Permalink to this heading"></a></h2>
+<section id="translate-with-opennmt-from-python-code">
+<h3>Translate with OpenNMT from Python code<a class="headerlink" href="#translate-with-opennmt-from-python-code" title="Permalink to this heading"></a></h3>
+<p>By importing the following,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rxn.onmt_utils</span> <span class="kn">import</span> <span class="n">Translator</span><span class="p">,</span> <span class="n">translate</span>
+</pre></div>
+</div>
+<p>you can do OpenNMT translations directly in Python.
+The <code class="docutils literal notranslate"><span class="pre">translate</span></code> function acts on input/output files, while the <code class="docutils literal notranslate"><span class="pre">Translator</span></code> class gives you flexibility for getting translation results on strings directly.</p>
+</section>
+<section id="stripping-models">
+<h3>Stripping models<a class="headerlink" href="#stripping-models" title="Permalink to this heading"></a></h3>
+<p>The script <code class="docutils literal notranslate"><span class="pre">rxn-strip-opennmt-model</span></code> installed the package allows you to strip ~2/3 of the size of model checkpoints by removing the state of the optimizer.
+You can do this safely if you don’t need to continue training on these checkpoints.</p>
+</section>
+<section id="extending-the-model-vocabulary">
+<h3>Extending the model vocabulary<a class="headerlink" href="#extending-the-model-vocabulary" title="Permalink to this heading"></a></h3>
+<p>If you finetune a model on a dataset with additional tokens compared to the base model, you will need to extend the model weights.
+The script <code class="docutils literal notranslate"><span class="pre">rxn-extend-model-with-vocab</span></code> does that for you.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="RXN OpenNMT utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2023.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+rxn.onmt\_utils.scripts
+=======================
+
+.. automodule:: rxn.onmt_utils.scripts
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   rxn.onmt_utils.scripts.extend_model_with_vocab
+   rxn.onmt_utils.scripts.strip_model
+   rxn.onmt_utils.scripts.translate
+

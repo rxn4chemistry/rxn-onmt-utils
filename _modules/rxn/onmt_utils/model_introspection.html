@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.onmt_utils.model_introspection &mdash; RXN OpenNMT utilities 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN OpenNMT utilities
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN OpenNMT utilities</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.onmt_utils.model_introspection</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.onmt_utils.model_introspection</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">Namespace</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">onmt.inputters.text_dataset</span> <span class="kn">import</span> <span class="n">TextMultiField</span>
+<span class="kn">from</span> <span class="nn">rxn.utilities.files</span> <span class="kn">import</span> <span class="n">PathLike</span>
+
+
+<div class="viewcode-block" id="get_model_vocab"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_introspection.get_model_vocab.html#rxn.onmt_utils.model_introspection.get_model_vocab">[docs]</a><span class="k">def</span> <span class="nf">get_model_vocab</span><span class="p">(</span><span class="n">model_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the vocabulary from a model checkpoint.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_path: model checkpoint, such as `model_step_100000.pt`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="k">lambda</span> <span class="n">storage</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="n">storage</span><span class="p">)</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;vocab&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_torch_vocab_to_list</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_preprocessed_vocab"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_introspection.get_preprocessed_vocab.html#rxn.onmt_utils.model_introspection.get_preprocessed_vocab">[docs]</a><span class="k">def</span> <span class="nf">get_preprocessed_vocab</span><span class="p">(</span><span class="n">vocab_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the vocabulary from the file saved by OpenNMT during preprocessing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vocab_path: vocab file, such as `preprocessed.vocab.pt`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">vocab_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_torch_vocab_to_list</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="model_vocab_is_compatible"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_introspection.model_vocab_is_compatible.html#rxn.onmt_utils.model_introspection.model_vocab_is_compatible">[docs]</a><span class="k">def</span> <span class="nf">model_vocab_is_compatible</span><span class="p">(</span><span class="n">model_pt</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">vocab_pt</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine whether the vocabulary contained in a model checkpoint contains</span>
+<span class="sd">    all the necessary tokens from a vocab file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_pt: model checkpoint, such as `model_step_100000.pt`.</span>
+<span class="sd">        vocab_pt: vocab file, such as `preprocessed.vocab.pt`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">model_vocab</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">get_model_vocab</span><span class="p">(</span><span class="n">model_pt</span><span class="p">))</span>
+    <span class="n">data_vocab</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">get_preprocessed_vocab</span><span class="p">(</span><span class="n">vocab_pt</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">data_vocab</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">model_vocab</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_torch_vocab_to_list</span><span class="p">(</span><span class="n">vocab</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">src_vocab</span> <span class="o">=</span> <span class="n">_multifield_vocab_to_list</span><span class="p">(</span><span class="n">vocab</span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">])</span>
+    <span class="n">tgt_vocab</span> <span class="o">=</span> <span class="n">_multifield_vocab_to_list</span><span class="p">(</span><span class="n">vocab</span><span class="p">[</span><span class="s2">&quot;tgt&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">src_vocab</span> <span class="o">!=</span> <span class="n">tgt_vocab</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Handling of different src/tgt vocab not implemented&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">src_vocab</span>
+
+
+<span class="k">def</span> <span class="nf">_multifield_vocab_to_list</span><span class="p">(</span><span class="n">multifield</span><span class="p">:</span> <span class="n">TextMultiField</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">multifield</span><span class="o">.</span><span class="n">base_field</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">itos</span><span class="p">[:]</span>
+
+
+<div class="viewcode-block" id="get_model_opt"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_introspection.get_model_opt.html#rxn.onmt_utils.model_introspection.get_model_opt">[docs]</a><span class="k">def</span> <span class="nf">get_model_opt</span><span class="p">(</span><span class="n">model_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the args (&quot;opt&quot;) of rnn_size for the given model checkpoint.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_path: model checkpoint, such as `model_step_100000.pt`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="k">lambda</span> <span class="n">storage</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="n">storage</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;opt&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_model_rnn_size"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_introspection.get_model_rnn_size.html#rxn.onmt_utils.model_introspection.get_model_rnn_size">[docs]</a><span class="k">def</span> <span class="nf">get_model_rnn_size</span><span class="p">(</span><span class="n">model_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the value of rnn_size for the given model checkpoint.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_path: model checkpoint, such as `model_step_100000.pt`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_model_opt</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span><span class="o">.</span><span class="n">rnn_size</span></div>
+
+
+<div class="viewcode-block" id="get_model_dropout"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_introspection.get_model_dropout.html#rxn.onmt_utils.model_introspection.get_model_dropout">[docs]</a><span class="k">def</span> <span class="nf">get_model_dropout</span><span class="p">(</span><span class="n">model_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the value of the dropout for the given model checkpoint.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_path: model checkpoint, such as `model_step_100000.pt`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Note: OpenNMT has support for several dropout values (changing during</span>
+    <span class="c1"># training). We do not support this at the moment.</span>
+    <span class="n">dropouts</span> <span class="o">=</span> <span class="n">get_model_opt</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span><span class="o">.</span><span class="n">dropout</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dropouts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected one dropout value. Actual: </span><span class="si">{</span><span class="n">dropouts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dropouts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_model_seed"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.model_introspection.get_model_seed.html#rxn.onmt_utils.model_introspection.get_model_seed">[docs]</a><span class="k">def</span> <span class="nf">get_model_seed</span><span class="p">(</span><span class="n">model_path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the value of the seed for the given model checkpoint.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_path: model checkpoint, such as `model_step_100000.pt`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_model_opt</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span><span class="o">.</span><span class="n">seed</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2023.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

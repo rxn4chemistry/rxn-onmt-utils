@@ -1,0 +1,31 @@
+rxn.onmt\_utils.train\_command.OnmtTrainCommand
+===============================================
+
+.. currentmodule:: rxn.onmt_utils.train_command
+
+.. autoclass:: OnmtTrainCommand
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OnmtTrainCommand.__init__
+      ~OnmtTrainCommand.cmd
+      ~OnmtTrainCommand.continue_training
+      ~OnmtTrainCommand.execute_from_config_cmd
+      ~OnmtTrainCommand.finetune
+      ~OnmtTrainCommand.save_to_config_cmd
+      ~OnmtTrainCommand.train
+   
+   
+
+   
+   
+   

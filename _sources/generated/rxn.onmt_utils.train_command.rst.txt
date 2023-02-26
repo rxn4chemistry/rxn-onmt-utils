@@ -1,0 +1,40 @@
+rxn.onmt\_utils.train\_command
+==============================
+
+.. automodule:: rxn.onmt_utils.train_command
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      preprocessed_id_names
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      Arg
+      OnmtTrainCommand
+      RxnCommand
+   
+   
+
+   
+   
+   
+
+
+

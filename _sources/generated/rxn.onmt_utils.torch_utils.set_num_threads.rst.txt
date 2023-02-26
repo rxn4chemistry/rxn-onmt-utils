@@ -1,0 +1,6 @@
+rxn.onmt\_utils.torch\_utils.set\_num\_threads
+==============================================
+
+.. currentmodule:: rxn.onmt_utils.torch_utils
+
+.. autofunction:: set_num_threads

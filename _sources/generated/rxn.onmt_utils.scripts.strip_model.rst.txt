@@ -1,0 +1,23 @@
+rxn.onmt\_utils.scripts.strip\_model
+====================================
+
+.. automodule:: rxn.onmt_utils.scripts.strip_model
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

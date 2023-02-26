@@ -1,0 +1,27 @@
+rxn.onmt\_utils.internal\_translation\_utils.RawTranslator
+==========================================================
+
+.. currentmodule:: rxn.onmt_utils.internal_translation_utils
+
+.. autoclass:: RawTranslator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RawTranslator.__init__
+      ~RawTranslator.translate_sentences_with_onmt
+      ~RawTranslator.translate_with_onmt
+   
+   
+
+   
+   
+   

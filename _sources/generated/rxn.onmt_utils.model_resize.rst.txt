@@ -1,0 +1,38 @@
+rxn.onmt\_utils.model\_resize
+=============================
+
+.. automodule:: rxn.onmt_utils.model_resize
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      init_parameters
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      ModelResizer
+   
+   
+
+   
+   
+   
+
+
+

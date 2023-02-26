@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.onmt_utils.train_command &mdash; RXN OpenNMT utilities 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN OpenNMT utilities
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN OpenNMT utilities</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.onmt_utils.train_command</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.onmt_utils.train_command</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">rxn.utilities.files</span> <span class="kn">import</span> <span class="n">PathLike</span>
+
+
+<div class="viewcode-block" id="RxnCommand"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.RxnCommand.html#rxn.onmt_utils.train_command.RxnCommand">[docs]</a><span class="k">class</span> <span class="nc">RxnCommand</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Flag indicating which command(s) the parameters relate to.</span>
+
+<span class="sd">    TC, TF, TCF are the combinations of the three base flags.</span>
+<span class="sd">    This enum allows for easily checking which commands some parameters relate</span>
+<span class="sd">    to (see Parameter and TrainingPlanner classes).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">T</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Train</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># Continue training</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># Fine-tune</span>
+    <span class="n">TC</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">TF</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">CF</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">TCF</span> <span class="o">=</span> <span class="mi">7</span></div>
+
+
+<div class="viewcode-block" id="Arg"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.Arg.html#rxn.onmt_utils.train_command.Arg">[docs]</a><span class="k">class</span> <span class="nc">Arg</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an argument to be given for the onmt_train command.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        key: argument name (i.e. what is forwarded to onmt_train, without the dash).</span>
+<span class="sd">        default: default value that we use for that argument in the RXN universe.</span>
+<span class="sd">            None indicates that this argument must be provided explicitly, an</span>
+<span class="sd">            empty string is used for boolean args not requiring a value.</span>
+<span class="sd">        needed_for: what commands this argument is needed for (train, finetune, etc.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Arg.__init__"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.Arg.html#rxn.onmt_utils.train_command.Arg.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">needed_for</span><span class="p">:</span> <span class="n">RxnCommand</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">needed_for</span> <span class="o">=</span> <span class="n">needed_for</span></div></div>
+
+
+<span class="n">ONMT_TRAIN_ARGS</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Arg</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;accum_count&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;adam_beta1&quot;</span><span class="p">,</span> <span class="s2">&quot;0.9&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;adam_beta2&quot;</span><span class="p">,</span> <span class="s2">&quot;0.998&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;batch_size&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;batch_type&quot;</span><span class="p">,</span> <span class="s2">&quot;tokens&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;decay_method&quot;</span><span class="p">,</span> <span class="s2">&quot;noam&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;decoder_type&quot;</span><span class="p">,</span> <span class="s2">&quot;transformer&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;dropout&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;encoder_type&quot;</span><span class="p">,</span> <span class="s2">&quot;transformer&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;global_attention&quot;</span><span class="p">,</span> <span class="s2">&quot;general&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;global_attention_function&quot;</span><span class="p">,</span> <span class="s2">&quot;softmax&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;heads&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;keep_checkpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;20&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;label_smoothing&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;layers&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;max_generator_batches&quot;</span><span class="p">,</span> <span class="s2">&quot;32&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;max_grad_norm&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;normalization&quot;</span><span class="p">,</span> <span class="s2">&quot;tokens&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;optim&quot;</span><span class="p">,</span> <span class="s2">&quot;adam&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;param_init&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;param_init_glorot&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>  <span class="c1"># note: empty means &quot;nothing&quot;</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;position_encoding&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>  <span class="c1"># note: empty means &quot;nothing&quot;</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;report_every&quot;</span><span class="p">,</span> <span class="s2">&quot;1000&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;reset_optim&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">CF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;rnn_size&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;save_checkpoint_steps&quot;</span><span class="p">,</span> <span class="s2">&quot;5000&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;save_model&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;seed&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;self_attn_type&quot;</span><span class="p">,</span> <span class="s2">&quot;scaled-dot&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;share_embeddings&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>  <span class="c1"># note: empty means &quot;nothing&quot;</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;train_from&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">CF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;train_steps&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;transformer_ff&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;valid_batch_size&quot;</span><span class="p">,</span> <span class="s2">&quot;8&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;warmup_steps&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;word_vec_size&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="OnmtTrainCommand"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.OnmtTrainCommand.html#rxn.onmt_utils.train_command.OnmtTrainCommand">[docs]</a><span class="k">class</span> <span class="nc">OnmtTrainCommand</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to build the onmt_command for training models, continuing the</span>
+<span class="sd">    training, or finetuning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OnmtTrainCommand.__init__"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.OnmtTrainCommand.html#rxn.onmt_utils.train_command.OnmtTrainCommand.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">command_type</span><span class="p">:</span> <span class="n">RxnCommand</span><span class="p">,</span>
+        <span class="n">no_gpu</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">data_weights</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_command_type</span> <span class="o">=</span> <span class="n">command_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_no_gpu</span> <span class="o">=</span> <span class="n">no_gpu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data_weights</span> <span class="o">=</span> <span class="n">data_weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span></div>
+
+    <span class="k">def</span> <span class="nf">_build_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the base command.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;onmt_train&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">ONMT_TRAIN_ARGS</span><span class="p">:</span>
+            <span class="n">arg_given</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_command_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">arg</span><span class="o">.</span><span class="n">needed_for</span><span class="p">:</span>
+                <span class="c1"># Check that the arg was not given; then go to the next argument.</span>
+                <span class="k">if</span> <span class="n">arg_given</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">arg</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot; value given, but not necessary for </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Case 1: something given (whether there was a default or not)</span>
+            <span class="k">if</span> <span class="n">arg_given</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">[</span><span class="n">arg</span><span class="o">.</span><span class="n">key</span><span class="p">])</span>
+            <span class="c1"># Case 2: default is None (i.e. a value is needed) but nothing was given</span>
+            <span class="k">elif</span> <span class="n">arg</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No value given for </span><span class="si">{</span><span class="n">arg</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Case 3: does not need value and nothing given</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+
+            <span class="c1"># Add the args to the command. Note: if the value is the empty string,</span>
+            <span class="c1"># do not add anything (typically for boolean args)</span>
+            <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">arg</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">command</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="n">command</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_for_gpu</span><span class="p">()</span>
+        <span class="n">command</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_for_data_weights</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">command</span>
+
+    <span class="k">def</span> <span class="nf">_args_for_gpu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_no_gpu</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;-gpu_ranks&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_args_for_data_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_weights</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">n_additional_datasets</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data_weights</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">data_ids</span> <span class="o">=</span> <span class="n">preprocessed_id_names</span><span class="p">(</span><span class="n">n_additional_datasets</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;-data_ids&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">data_ids</span><span class="p">,</span>
+            <span class="s2">&quot;-data_weights&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_weights</span><span class="p">),</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="OnmtTrainCommand.cmd"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.OnmtTrainCommand.html#rxn.onmt_utils.train_command.OnmtTrainCommand.cmd">[docs]</a>    <span class="k">def</span> <span class="nf">cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the &quot;raw&quot; command for executing onmt_train.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_cmd</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OnmtTrainCommand.save_to_config_cmd"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.OnmtTrainCommand.html#rxn.onmt_utils.train_command.OnmtTrainCommand.save_to_config_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">save_to_config_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the command for saving the config to a file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_cmd</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;-save_config&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_file</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="OnmtTrainCommand.execute_from_config_cmd"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.OnmtTrainCommand.html#rxn.onmt_utils.train_command.OnmtTrainCommand.execute_from_config_cmd">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">execute_from_config_cmd</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the command for executing onmt_train with values read from the config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;onmt_train&quot;</span><span class="p">,</span> <span class="s2">&quot;-config&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_file</span><span class="p">)]</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">heads</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">layers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">rnn_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">save_model</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">train_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">transformer_ff</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">warmup_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">word_vec_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">no_gpu</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">data_weights</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OnmtTrainCommand&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">command_type</span><span class="o">=</span><span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+            <span class="n">no_gpu</span><span class="o">=</span><span class="n">no_gpu</span><span class="p">,</span>
+            <span class="n">data_weights</span><span class="o">=</span><span class="n">data_weights</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">heads</span><span class="o">=</span><span class="n">heads</span><span class="p">,</span>
+            <span class="n">layers</span><span class="o">=</span><span class="n">layers</span><span class="p">,</span>
+            <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
+            <span class="n">rnn_size</span><span class="o">=</span><span class="n">rnn_size</span><span class="p">,</span>
+            <span class="n">save_model</span><span class="o">=</span><span class="n">save_model</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">train_steps</span><span class="o">=</span><span class="n">train_steps</span><span class="p">,</span>
+            <span class="n">transformer_ff</span><span class="o">=</span><span class="n">transformer_ff</span><span class="p">,</span>
+            <span class="n">warmup_steps</span><span class="o">=</span><span class="n">warmup_steps</span><span class="p">,</span>
+            <span class="n">word_vec_size</span><span class="o">=</span><span class="n">word_vec_size</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">continue_training</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">save_model</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">train_from</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">train_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">no_gpu</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">data_weights</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OnmtTrainCommand&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">command_type</span><span class="o">=</span><span class="n">RxnCommand</span><span class="o">.</span><span class="n">C</span><span class="p">,</span>
+            <span class="n">no_gpu</span><span class="o">=</span><span class="n">no_gpu</span><span class="p">,</span>
+            <span class="n">data_weights</span><span class="o">=</span><span class="n">data_weights</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">reset_optim</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="n">save_model</span><span class="o">=</span><span class="n">save_model</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">train_from</span><span class="o">=</span><span class="n">train_from</span><span class="p">,</span>
+            <span class="n">train_steps</span><span class="o">=</span><span class="n">train_steps</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">finetune</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">rnn_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">save_model</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">train_from</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
+        <span class="n">train_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">warmup_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">no_gpu</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">data_weights</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">report_every</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">save_checkpoint_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OnmtTrainCommand&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">command_type</span><span class="o">=</span><span class="n">RxnCommand</span><span class="o">.</span><span class="n">F</span><span class="p">,</span>
+            <span class="n">no_gpu</span><span class="o">=</span><span class="n">no_gpu</span><span class="p">,</span>
+            <span class="n">data_weights</span><span class="o">=</span><span class="n">data_weights</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
+            <span class="n">reset_optim</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+            <span class="n">rnn_size</span><span class="o">=</span><span class="n">rnn_size</span><span class="p">,</span>
+            <span class="n">save_model</span><span class="o">=</span><span class="n">save_model</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">train_from</span><span class="o">=</span><span class="n">train_from</span><span class="p">,</span>
+            <span class="n">train_steps</span><span class="o">=</span><span class="n">train_steps</span><span class="p">,</span>
+            <span class="n">warmup_steps</span><span class="o">=</span><span class="n">warmup_steps</span><span class="p">,</span>
+            <span class="n">report_every</span><span class="o">=</span><span class="n">report_every</span><span class="p">,</span>
+            <span class="n">save_checkpoint_steps</span><span class="o">=</span><span class="n">save_checkpoint_steps</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="preprocessed_id_names"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.preprocessed_id_names.html#rxn.onmt_utils.train_command.preprocessed_id_names">[docs]</a><span class="k">def</span> <span class="nf">preprocessed_id_names</span><span class="p">(</span><span class="n">n_additional_sets</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the names of the ids for the datasets used in multi-task training</span>
+<span class="sd">    with OpenNMT.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n_additional_sets: how many sets there are in addition to the main set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;main_set&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;additional_set_</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_additional_sets</span><span class="p">)]</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2023.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

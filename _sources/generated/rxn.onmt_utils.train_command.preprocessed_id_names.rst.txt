@@ -1,0 +1,6 @@
+rxn.onmt\_utils.train\_command.preprocessed\_id\_names
+======================================================
+
+.. currentmodule:: rxn.onmt_utils.train_command
+
+.. autofunction:: preprocessed_id_names

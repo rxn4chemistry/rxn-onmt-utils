@@ -1,0 +1,30 @@
+rxn.onmt\_utils.torch\_utils
+============================
+
+.. automodule:: rxn.onmt_utils.torch_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      set_num_threads
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

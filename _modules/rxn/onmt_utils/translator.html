@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rxn.onmt_utils.translator &mdash; RXN OpenNMT utilities 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> RXN OpenNMT utilities
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">README</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Python API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">RXN OpenNMT utilities</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rxn.onmt_utils.translator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rxn.onmt_utils.translator</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">Namespace</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">.internal_translation_utils</span> <span class="kn">import</span> <span class="n">RawTranslator</span><span class="p">,</span> <span class="n">TranslationResult</span><span class="p">,</span> <span class="n">get_onmt_opt</span>
+
+
+<div class="viewcode-block" id="Translator"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.translator.Translator.html#rxn.onmt_utils.translator.Translator">[docs]</a><span class="k">class</span> <span class="nc">Translator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wraps the OpenNMT translation functionality into a class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Translator.__init__"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.translator.Translator.html#rxn.onmt_utils.translator.Translator.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="n">Namespace</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Should not be called directly as implementation may change; call the</span>
+<span class="sd">        classmethods from_model_path or from_opt instead.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            opt: model options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onmt_translator</span> <span class="o">=</span> <span class="n">RawTranslator</span><span class="p">(</span><span class="n">opt</span><span class="o">=</span><span class="n">opt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Translator.translate_single"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.translator.Translator.html#rxn.onmt_utils.translator.Translator.translate_single">[docs]</a>    <span class="k">def</span> <span class="nf">translate_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Translate one single sentence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">translations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_sentences</span><span class="p">([</span><span class="n">sentence</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">translations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">translations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Translator.translate_sentences"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.translator.Translator.html#rxn.onmt_utils.translator.Translator.translate_sentences">[docs]</a>    <span class="k">def</span> <span class="nf">translate_sentences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Translate multiple sentences.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">translations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_multiple_with_scores</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">translations</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Translator.translate_multiple_with_scores"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.translator.Translator.html#rxn.onmt_utils.translator.Translator.translate_multiple_with_scores">[docs]</a>    <span class="k">def</span> <span class="nf">translate_multiple_with_scores</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">n_best</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">TranslationResult</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Translate multiple sentences.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sentences: Sentences to translate.</span>
+<span class="sd">            n_best: if provided, will overwrite the number of predictions to make.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">additional_opt_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">n_best</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">additional_opt_kwargs</span><span class="p">[</span><span class="s2">&quot;n_best&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_best</span>
+
+        <span class="n">translations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">onmt_translator</span><span class="o">.</span><span class="n">translate_sentences_with_onmt</span><span class="p">(</span>
+            <span class="n">sentences</span><span class="p">,</span> <span class="o">**</span><span class="n">additional_opt_kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">yield from</span> <span class="n">translations</span></div>
+
+<div class="viewcode-block" id="Translator.from_model_path"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.translator.Translator.html#rxn.onmt_utils.translator.Translator.from_model_path">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_model_path</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">model_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Translator&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Translator instance from the model path(s).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_path: path to the translation model file(s).</span>
+<span class="sd">                If multiple are given, will be an ensemble model.</span>
+<span class="sd">            kwargs: Additional values to be parsed for instantiating the translator,</span>
+<span class="sd">                such as n_best, beam_size, max_length, etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">model_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">model_path</span><span class="p">]</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="n">get_onmt_opt</span><span class="p">(</span><span class="n">translation_model</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">model_path</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">opt</span><span class="o">=</span><span class="n">opt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Translator.from_opt"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.translator.Translator.html#rxn.onmt_utils.translator.Translator.from_opt">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_opt</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Translator&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Translator instance from the opt arguments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            opt: model options.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">opt</span><span class="o">=</span><span class="n">opt</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright IBM RXN team 2023.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

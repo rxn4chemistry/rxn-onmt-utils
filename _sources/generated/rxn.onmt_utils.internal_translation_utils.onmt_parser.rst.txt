@@ -1,0 +1,6 @@
+rxn.onmt\_utils.internal\_translation\_utils.onmt\_parser
+=========================================================
+
+.. currentmodule:: rxn.onmt_utils.internal_translation_utils
+
+.. autofunction:: onmt_parser

@@ -1,0 +1,6 @@
+rxn.onmt\_utils.internal\_translation\_utils.get\_onmt\_opt
+===========================================================
+
+.. currentmodule:: rxn.onmt_utils.internal_translation_utils
+
+.. autofunction:: get_onmt_opt
