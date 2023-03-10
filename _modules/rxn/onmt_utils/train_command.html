@@ -65,10 +65,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for rxn.onmt_utils.train_command</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Flag</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">rxn.utilities.files</span> <span class="kn">import</span> <span class="n">PathLike</span>
+
+<span class="kn">from</span> <span class="nn">.model_introspection</span> <span class="kn">import</span> <span class="n">get_model_rnn_size</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
 
 
 <div class="viewcode-block" id="RxnCommand"><a class="viewcode-back" href="../../../generated/rxn.onmt_utils.train_command.RxnCommand.html#rxn.onmt_utils.train_command.RxnCommand">[docs]</a><span class="k">class</span> <span class="nc">RxnCommand</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
@@ -313,7 +319,6 @@
         <span class="n">data</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
         <span class="n">dropout</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">rnn_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">save_model</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">train_from</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
@@ -323,7 +328,15 @@
         <span class="n">data_weights</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
         <span class="n">report_every</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">save_checkpoint_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">rnn_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OnmtTrainCommand&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rnn_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># In principle, the rnn_size should not be needed for finetuning. However,</span>
+            <span class="c1"># when resetting the decay algorithm for the learning rate, this value</span>
+            <span class="c1"># is necessary - and does not get it from the model checkpoint (OpenNMT bug).</span>
+            <span class="n">rnn_size</span> <span class="o">=</span> <span class="n">get_model_rnn_size</span><span class="p">(</span><span class="n">train_from</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded the value of rnn_size from the model: </span><span class="si">{</span><span class="n">rnn_size</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">command_type</span><span class="o">=</span><span class="n">RxnCommand</span><span class="o">.</span><span class="n">F</span><span class="p">,</span>
             <span class="n">no_gpu</span><span class="o">=</span><span class="n">no_gpu</span><span class="p">,</span>
