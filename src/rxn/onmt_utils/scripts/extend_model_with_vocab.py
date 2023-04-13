@@ -19,7 +19,7 @@ logger.addHandler(logging.NullHandler())
 @click.option(
     "--output_path", "-o", required=True, help="Where to save the resized model."
 )
-def extend_model_vocab(model_path: str, vocab_path: str, output_path: str):
+def main(model_path: str, vocab_path: str, output_path: str):
     """Extend model vocab, resize and initialise additional weights."""
 
     resizer = ModelResizer(model_path)
@@ -30,4 +30,4 @@ def extend_model_vocab(model_path: str, vocab_path: str, output_path: str):
 
 
 if __name__ == "__main__":
-    extend_model_vocab()
+    main()
