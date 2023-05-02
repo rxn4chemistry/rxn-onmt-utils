@@ -60,7 +60,7 @@ ONMT_TRAIN_ARGS: List[Arg] = [
     Arg("global_attention", "general", RxnCommand.T),
     Arg("global_attention_function", "softmax", RxnCommand.T),
     Arg("heads", None, RxnCommand.T),
-    Arg("keep_checkpoint", "20", RxnCommand.TCF),
+    Arg("keep_checkpoint", "-1", RxnCommand.TCF),
     Arg("label_smoothing", "0.0", RxnCommand.TCF),
     Arg("layers", None, RxnCommand.T),
     Arg("learning_rate", None, RxnCommand.TF),
@@ -198,6 +198,7 @@ class OnmtTrainCommand:
         word_vec_size: int,
         no_gpu: bool,
         data_weights: Tuple[int, ...],
+        keep_checkpoint: int = -1,
     ) -> "OnmtTrainCommand":
         return cls(
             command_type=RxnCommand.T,
@@ -207,6 +208,7 @@ class OnmtTrainCommand:
             data=data,
             dropout=dropout,
             heads=heads,
+            keep_checkpoint=keep_checkpoint,
             layers=layers,
             learning_rate=learning_rate,
             rnn_size=rnn_size,
@@ -230,6 +232,7 @@ class OnmtTrainCommand:
         train_steps: int,
         no_gpu: bool,
         data_weights: Tuple[int, ...],
+        keep_checkpoint: int = -1,
     ) -> "OnmtTrainCommand":
         return cls(
             command_type=RxnCommand.C,
@@ -238,6 +241,7 @@ class OnmtTrainCommand:
             batch_size=batch_size,
             data=data,
             dropout=dropout,
+            keep_checkpoint=keep_checkpoint,
             reset_optim="none",
             save_model=save_model,
             seed=seed,
@@ -261,6 +265,7 @@ class OnmtTrainCommand:
         data_weights: Tuple[int, ...],
         report_every: int,
         save_checkpoint_steps: int,
+        keep_checkpoint: int = -1,
         rnn_size: Optional[int] = None,
     ) -> "OnmtTrainCommand":
         if rnn_size is None:
@@ -277,6 +282,7 @@ class OnmtTrainCommand:
             batch_size=batch_size,
             data=data,
             dropout=dropout,
+            keep_checkpoint=keep_checkpoint,
             learning_rate=learning_rate,
             reset_optim="all",
             rnn_size=rnn_size,
