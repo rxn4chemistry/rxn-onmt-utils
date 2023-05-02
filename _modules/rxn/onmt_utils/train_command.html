@@ -127,7 +127,7 @@
     <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;global_attention&quot;</span><span class="p">,</span> <span class="s2">&quot;general&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
     <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;global_attention_function&quot;</span><span class="p">,</span> <span class="s2">&quot;softmax&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
     <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;heads&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
-    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;keep_checkpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;20&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
+    <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;keep_checkpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
     <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;label_smoothing&quot;</span><span class="p">,</span> <span class="s2">&quot;0.0&quot;</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TCF</span><span class="p">),</span>
     <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;layers&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">),</span>
     <span class="n">Arg</span><span class="p">(</span><span class="s2">&quot;learning_rate&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">RxnCommand</span><span class="o">.</span><span class="n">TF</span><span class="p">),</span>
@@ -265,6 +265,7 @@
         <span class="n">word_vec_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">no_gpu</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">data_weights</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">keep_checkpoint</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OnmtTrainCommand&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">command_type</span><span class="o">=</span><span class="n">RxnCommand</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
@@ -274,6 +275,7 @@
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
             <span class="n">heads</span><span class="o">=</span><span class="n">heads</span><span class="p">,</span>
+            <span class="n">keep_checkpoint</span><span class="o">=</span><span class="n">keep_checkpoint</span><span class="p">,</span>
             <span class="n">layers</span><span class="o">=</span><span class="n">layers</span><span class="p">,</span>
             <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
             <span class="n">rnn_size</span><span class="o">=</span><span class="n">rnn_size</span><span class="p">,</span>
@@ -297,6 +299,7 @@
         <span class="n">train_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">no_gpu</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">data_weights</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">keep_checkpoint</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OnmtTrainCommand&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">command_type</span><span class="o">=</span><span class="n">RxnCommand</span><span class="o">.</span><span class="n">C</span><span class="p">,</span>
@@ -305,6 +308,7 @@
             <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">keep_checkpoint</span><span class="o">=</span><span class="n">keep_checkpoint</span><span class="p">,</span>
             <span class="n">reset_optim</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
             <span class="n">save_model</span><span class="o">=</span><span class="n">save_model</span><span class="p">,</span>
             <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
@@ -328,6 +332,7 @@
         <span class="n">data_weights</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
         <span class="n">report_every</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">save_checkpoint_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">keep_checkpoint</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">rnn_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OnmtTrainCommand&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">rnn_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -344,6 +349,7 @@
             <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
             <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">keep_checkpoint</span><span class="o">=</span><span class="n">keep_checkpoint</span><span class="p">,</span>
             <span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span>
             <span class="n">reset_optim</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
             <span class="n">rnn_size</span><span class="o">=</span><span class="n">rnn_size</span><span class="p">,</span>
