@@ -5,7 +5,10 @@
 This repository contains OpenNMT-related utilities used in the RXN universe.
 For general utilities not related to OpenNMT, see our other repository [`rxn-utilities`](https://github.com/rxn4chemistry/rxn-utilities).
 
-The documentation can be found [here](https://rxn4chemistry.github.io/rxn-onmt-utils/).
+Links:
+* [GitHub repository](https://github.com/rxn4chemistry/rxn-onmt-utils)
+* [Documentation](https://rxn4chemistry.github.io/rxn-onmt-utils/)
+* [PyPI package](https://pypi.org/project/rxn-onmt-utils/)
 
 ## System Requirements
 
