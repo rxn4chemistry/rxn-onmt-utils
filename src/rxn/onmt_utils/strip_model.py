@@ -1,8 +1,8 @@
+import logging
 from pathlib import Path
+
 import click
 import torch
-import logging
-
 from rxn.utilities.files import get_file_size_as_string
 from rxn.utilities.logging import setup_console_logger
 
