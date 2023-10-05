@@ -29,6 +29,5 @@ rxn.onmt\_utils.scripts
    :recursive:
 
    rxn.onmt_utils.scripts.extend_model_with_vocab
-   rxn.onmt_utils.scripts.strip_model
    rxn.onmt_utils.scripts.translate
 

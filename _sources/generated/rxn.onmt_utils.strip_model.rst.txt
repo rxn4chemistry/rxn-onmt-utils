@@ -1,0 +1,30 @@
+rxn.onmt\_utils.strip\_model
+============================
+
+.. automodule:: rxn.onmt_utils.strip_model
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      strip_model
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

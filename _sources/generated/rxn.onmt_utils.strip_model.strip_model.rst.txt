@@ -1,0 +1,6 @@
+rxn.onmt\_utils.strip\_model.strip\_model
+=========================================
+
+.. currentmodule:: rxn.onmt_utils.strip_model
+
+.. autofunction:: strip_model

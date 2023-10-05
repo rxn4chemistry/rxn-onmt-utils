@@ -32,6 +32,7 @@
    rxn.onmt_utils.model_introspection
    rxn.onmt_utils.model_resize
    rxn.onmt_utils.scripts
+   rxn.onmt_utils.strip_model
    rxn.onmt_utils.torch_utils
    rxn.onmt_utils.train_command
    rxn.onmt_utils.translate
