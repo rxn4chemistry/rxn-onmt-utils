@@ -7,10 +7,39 @@ from typing import Any, Iterable, Iterator, List, Optional
 import attr
 import onmt.opts as opts
 from onmt.translate.translator import build_translator
-from onmt.utils.misc import split_corpus
+#from onmt.utils.misc import split_corpus
 from onmt.utils.parse import ArgumentParser
 from rxn.utilities.files import named_temporary_path
+from itertools import islice, repeat
 
+# Introduced back _split_corpus and split_corpus originally in onmt.utils.misc
+# This commit gets rid of it: https://github.com/OpenNMT/OpenNMT-py/commit/4dcb2b9478eba32a480364e595f5fff7bd8ca887
+# Since dependencies of split_corpus and _split_corpus are only itertools, it's easier to add them to source code
+def _split_corpus(path, shard_size):
+     """Yield a `list` containing `shard_size` line of `path`.
+     """
+     with open(path, "rb") as f:
+         if shard_size <= 0:
+             yield f.readlines()
+         else:
+             while True:
+                 shard = list(islice(f, shard_size))
+                 if not shard:
+                     break
+                 yield shard
+
+
+def split_corpus(path, shard_size, default=None):
+     """yield a `list` containing `shard_size` line of `path`,
+     or repeatly generate `default` if `path` is None.
+     """
+     if path is not None:
+         return _split_corpus(path, shard_size)
+     else:
+         return repeat(default)
+
+
+ 
 
 @attr.s(auto_attribs=True)
 class TranslationResult:
