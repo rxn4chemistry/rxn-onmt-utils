@@ -2,9 +2,10 @@ import logging
 from enum import Flag
 from typing import Any, List, Optional, Tuple
 
+from onmt.trainer import Trainer
 from rxn.utilities.files import PathLike
 
-from .model_introspection import get_model_rnn_size
+#from .model_introspection import get_model_rnn_size
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -88,7 +89,7 @@ ONMT_TRAIN_ARGS: List[Arg] = [
 ]
 
 
-class OnmtTrainCommand:
+class OnmtTrainCommand(Trainer):
     """
     Class to build the onmt_command for training models, continuing the
     training, or finetuning.
@@ -272,7 +273,7 @@ class OnmtTrainCommand:
             # In principle, the rnn_size should not be needed for finetuning. However,
             # when resetting the decay algorithm for the learning rate, this value
             # is necessary - and does not get it from the model checkpoint (OpenNMT bug).
-            rnn_size = get_model_rnn_size(train_from)
+            #rnn_size = get_model_rnn_size(train_from)
             logger.info(f"Loaded the value of rnn_size from the model: {rnn_size}.")
 
         return cls(
@@ -285,7 +286,7 @@ class OnmtTrainCommand:
             keep_checkpoint=keep_checkpoint,
             learning_rate=learning_rate,
             reset_optim="all",
-            rnn_size=rnn_size,
+            #rnn_size=rnn_size,
             save_model=save_model,
             seed=seed,
             train_from=train_from,
