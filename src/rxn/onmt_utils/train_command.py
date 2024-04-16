@@ -1,12 +1,12 @@
 import logging
 from enum import Flag
 from pathlib import Path
-from typing import Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 from rxn.utilities.files import PathLike
 
-#from .model_introspection import get_model_rnn_size
+# from .model_introspection import get_model_rnn_size
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -46,6 +46,7 @@ class Arg:
         self.key = key
         self.default = default
         self.needed_for = needed_for
+
 
 # See https://opennmt.net/OpenNMT-py/options/train.html
 ONMT_TRAIN_ARGS: List[Arg] = [
@@ -181,7 +182,6 @@ class OnmtTrainCommand:
         # See structure https://opennmt.net/OpenNMT-py/quickstart.html (Step 1: Prepare the data)
         train_config: Dict[str, Any] = {}
 
-
         with open(config_file_path, "w+") as file:
             yaml.dump(train_config, file)
 
@@ -278,6 +278,7 @@ class OnmtTrainCommand:
         train_steps: int,
         warmup_steps: int,
         no_gpu: bool,
+        data_weights: Tuple[int, ...],
         report_every: int,
         save_checkpoint_steps: int,
         keep_checkpoint: int = -1,
@@ -287,8 +288,10 @@ class OnmtTrainCommand:
             # In principle, the rnn_size should not be needed for finetuning. However,
             # when resetting the decay algorithm for the learning rate, this value
             # is necessary - and does not get it from the model checkpoint (OpenNMT bug).
-            #rnn_size = get_model_rnn_size(train_from)
-            logger.info(f"Loaded the value of hidden_size from the model: {hidden_size}.")
+            # rnn_size = get_model_rnn_size(train_from)
+            logger.info(
+                f"Loaded the value of hidden_size from the model: {hidden_size}."
+            )
 
         return cls(
             command_type=RxnCommand.F,
