@@ -9,6 +9,7 @@ check_untyped_defs = true
 module = [
     "onmt.*",
     "yaml.*",
+    "torch.*",
 ]
 ignore_missing_imports = true
 
