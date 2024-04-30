@@ -73,8 +73,8 @@ ONMT_TRAIN_ARGS: List[Arg] = [
     Arg("normalization", "tokens", RxnCommand.TCF),
     Arg("optim", "adam", RxnCommand.TF),
     Arg("param_init", "0", RxnCommand.T),
-    Arg("param_init_glorot", "", RxnCommand.T),  # note: empty means "nothing"
-    Arg("position_encoding", "", RxnCommand.T),  # note: empty means "nothing"
+    Arg("param_init_glorot", "true", RxnCommand.T),  # note: empty means "nothing"
+    Arg("position_encoding", "true", RxnCommand.T),  # note: empty means "nothing"
     Arg("report_every", "1000", RxnCommand.TCF),
     Arg("reset_optim", None, RxnCommand.CF),
     Arg("hidden_size", None, RxnCommand.TF),
@@ -82,7 +82,7 @@ ONMT_TRAIN_ARGS: List[Arg] = [
     Arg("save_model", None, RxnCommand.TCF),
     Arg("seed", None, RxnCommand.TCF),
     Arg("self_attn_type", "scaled-dot", RxnCommand.T),
-    Arg("share_embeddings", "", RxnCommand.T),  # note: empty means "nothing"
+    Arg("share_embeddings", "true", RxnCommand.T),  # note: empty means "nothing"
     Arg("src_vocab", None, RxnCommand.T),
     Arg("tgt_vocab", None, RxnCommand.T),
     Arg("train_from", None, RxnCommand.CF),
@@ -217,12 +217,20 @@ class OnmtTrainCommand:
         if torch.cuda.is_available() and self._no_gpu is False:
             train_config["gpu_ranks"] = [0]
 
-        # Dump all cli arguments to dict
-        for kwarg, value in self._kwargs.items():
-            if self.is_valid_kwarg_value(kwarg, value):
-                train_config[kwarg] = value
+        for arg in ONMT_TRAIN_ARGS:
+            arg_given = arg.key in self._kwargs
+
+            if arg_given:
+                train_config[arg.key] = self._kwargs[arg.key]
             else:
-                raise ValueError(f'"Value {value}" for argument {kwarg} is invalid')
+                train_config[arg.key] = arg.default
+
+        # Dump all cli arguments to dict
+        # for kwarg, value in self._kwargs.items():
+        #     if self.is_valid_kwarg_value(kwarg, value):
+        #         train_config[kwarg] = value
+        #     else:
+        #         raise ValueError(f'"Value {value}" for argument {kwarg} is invalid')
 
         # Reformat "data" argument as in ONMT-py v.3.5.0
         path_save_prepr_data = train_config["data"]
@@ -254,6 +262,9 @@ class OnmtTrainCommand:
         train_config["save_model"] = str(
             train_config["save_model"]
         )  # avoid posix bad format in yaml
+
+        # share_vocab
+        train_config["share_vocab"] = str(True)
 
         # Dump to config.yaml
         with open(config_file_path, "w+") as file:
