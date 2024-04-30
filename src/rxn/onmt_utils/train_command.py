@@ -3,6 +3,7 @@ from enum import Flag
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import torch
 import yaml
 from rxn.utilities.files import PathLike
 
@@ -211,6 +212,10 @@ class OnmtTrainCommand:
         # Build train config content, it will not include defaults not specified in cli
         # See structure https://opennmt.net/OpenNMT-py/quickstart.html (Step 2: Train)
         train_config: Dict[str, Any] = {}
+
+        # GPUs
+        if torch.cuda.is_available() and self._no_gpu is False:
+            train_config["gpu_ranks"] = [0]
 
         # Dump all cli arguments to dict
         for kwarg, value in self._kwargs.items():
