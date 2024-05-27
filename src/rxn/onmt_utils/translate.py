@@ -158,7 +158,7 @@ def translate_as_external_command(
         str(src),
         "-output",
         str(output),
-        "-log_probs",
+        #"-log_probs",
         "-n_best",
         str(n_best),
         "-beam_size",
