@@ -113,6 +113,7 @@ ONMT_TRAIN_ARGS: List[Arg] = [
     Arg("valid_batch_size", "8", RxnCommand.TCF),
     Arg("warmup_steps", None, RxnCommand.TF),
     Arg("word_vec_size", None, RxnCommand.T),
+    Arg("pos_ffn_activation_fn", "relu", RxnCommand.T),
 ]
 # TODO: (Irina) Add new v.3.5.1 arguments like lora_layers, quant_layers if necessary
 

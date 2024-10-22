@@ -6,6 +6,7 @@ from typing import Any, Iterable, Iterator, List, Optional
 
 import attr
 import onmt.opts as opts
+import torch
 from onmt.constants import CorpusTask
 from onmt.inputters.dynamic_iterator import build_dynamic_dataset_iter
 from onmt.translate.translator import build_translator
@@ -117,6 +118,7 @@ class RawTranslator:
                 else:
                     yield translation_results
 
+    @torch.no_grad()
     def translate_with_onmt(self, opt) -> Iterator[List[TranslationResult]]:
         """
         Do the translation (in tokenized format) with OpenNMT.
@@ -130,18 +132,11 @@ class RawTranslator:
         """
         # for some versions, it seems that n_best is not updated, we therefore do it manually here
         self.internal_translator.n_best = opt.n_best
-        opt.shard_size = 0 # IRINA
         
         opt.src_dir = opt.src.parent
-        #import ipdb
-        #ipdb.set_trace()
-        #src_shards = split_corpus(opt.src, opt.shard_size)
-        #tgt_shards = (
-        #    split_corpus(opt.tgt, opt.shard_size)
-        #    if opt.tgt is not None
-        #    else repeat(None)
-        #)
-        #shard_pairs = zip(src_shards, tgt_shards)
+        
+        #pprint.pprint(opt)
+
 
         infer_iter = build_dynamic_dataset_iter(
                 opt=opt,
@@ -150,16 +145,19 @@ class RawTranslator:
                 task=CorpusTask.INFER,
                 device_id=opt.gpu,
         )
+
         l1_total, l2_total = self.internal_translator._translate( # IRINA
                 infer_iter=infer_iter,
                 attn_debug=opt.attn_debug,
-                
         )
+
+        del infer_iter
         for score_list, translation_list in zip(l1_total, l2_total):
             yield [
                 TranslationResult(text=t, score=s)
                 for s, t in zip(score_list, translation_list)
             ]
+        del l1_total, l2_total
 
         # for i, (src_shard, tgt_shard) in enumerate(shard_pairs):
         #     #import ipdb
@@ -219,6 +217,10 @@ def get_onmt_opt(
         setattr(opt, key, value)
     ArgumentParser.validate_translate_opts(opt)
 
+    #opt.random_sampling_topk = 1.0
+    #opt.length_penalty = "none"
+    #opt.alpha = 0
+
     return opt
 
 
@@ -231,8 +233,6 @@ def onmt_parser() -> ArgumentParser:
 
     #opts.config_opts(parser) # IRINA
 
-    #import ipdb
-    #ipdb.set_trace()
     opts.translate_opts(parser)
 
     return parser
