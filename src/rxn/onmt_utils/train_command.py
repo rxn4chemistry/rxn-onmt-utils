@@ -1,13 +1,38 @@
 import logging
 from enum import Flag
-from typing import Any, List, Optional, Tuple
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
+import torch
+import yaml
 from rxn.utilities.files import PathLike
 
-from .model_introspection import get_model_rnn_size
+# from .model_introspection import get_model_rnn_size
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
+
+
+def get_paths_src_tgt(dir: PathLike, model_task: str) -> Tuple[str, str, str, str]:
+    # reaction is A -> B irregardless of retro or forward
+    if model_task == "forward":
+        A = "precursors"
+        B = "products"
+    elif model_task == "retro":
+        A = "products"
+        B = "precursors"
+        pass
+    else:
+        raise ValueError(
+            f"Argument model_task can only be 'forward' or 'retro' but received {model_task}"
+        )
+
+    corpus_path_src = f"{dir}/data.processed.train.{A}_tokens"
+    corpus_path_tgt = f"{dir}/data.processed.train.{B}_tokens"
+    valid_path_src = f"{dir}/data.processed.validation.{A}_tokens"
+    valid_path_tgt = f"{dir}/data.processed.validation.{B}_tokens"
+
+    return corpus_path_src, corpus_path_tgt, valid_path_src, valid_path_tgt
 
 
 class RxnCommand(Flag):
@@ -46,6 +71,7 @@ class Arg:
         self.needed_for = needed_for
 
 
+# See https://opennmt.net/OpenNMT-py/options/train.html
 ONMT_TRAIN_ARGS: List[Arg] = [
     Arg("accum_count", "4", RxnCommand.TCF),
     Arg("adam_beta1", "0.9", RxnCommand.TF),
@@ -69,23 +95,27 @@ ONMT_TRAIN_ARGS: List[Arg] = [
     Arg("normalization", "tokens", RxnCommand.TCF),
     Arg("optim", "adam", RxnCommand.TF),
     Arg("param_init", "0", RxnCommand.T),
-    Arg("param_init_glorot", "", RxnCommand.T),  # note: empty means "nothing"
-    Arg("position_encoding", "", RxnCommand.T),  # note: empty means "nothing"
+    Arg("param_init_glorot", "true", RxnCommand.T),  # note: empty means "nothing"
+    Arg("position_encoding", "true", RxnCommand.T),  # note: empty means "nothing"
     Arg("report_every", "1000", RxnCommand.TCF),
     Arg("reset_optim", None, RxnCommand.CF),
-    Arg("rnn_size", None, RxnCommand.TF),
+    Arg("hidden_size", None, RxnCommand.TF),
     Arg("save_checkpoint_steps", "5000", RxnCommand.TCF),
     Arg("save_model", None, RxnCommand.TCF),
     Arg("seed", None, RxnCommand.TCF),
     Arg("self_attn_type", "scaled-dot", RxnCommand.T),
-    Arg("share_embeddings", "", RxnCommand.T),  # note: empty means "nothing"
+    Arg("share_embeddings", "true", RxnCommand.T),  # note: empty means "nothing"
+    Arg("src_vocab", None, RxnCommand.T),
+    Arg("tgt_vocab", None, RxnCommand.T),
     Arg("train_from", None, RxnCommand.CF),
     Arg("train_steps", None, RxnCommand.TCF),
     Arg("transformer_ff", None, RxnCommand.T),
     Arg("valid_batch_size", "8", RxnCommand.TCF),
     Arg("warmup_steps", None, RxnCommand.TF),
     Arg("word_vec_size", None, RxnCommand.T),
+    Arg("pos_ffn_activation_fn", "relu", RxnCommand.T),
 ]
+# TODO: (Irina) Add new v.3.5.1 arguments like lora_layers, quant_layers if necessary
 
 
 class OnmtTrainCommand:
@@ -99,18 +129,21 @@ class OnmtTrainCommand:
         command_type: RxnCommand,
         no_gpu: bool,
         data_weights: Tuple[int, ...],
+        model_task: str,
         **kwargs: Any,
     ):
         self._command_type = command_type
         self._no_gpu = no_gpu
         self._data_weights = data_weights
         self._kwargs = kwargs
+        self.model_task = model_task
 
     def _build_cmd(self) -> List[str]:
         """
         Build the base command.
         """
         command = ["onmt_train"]
+
         for arg in ONMT_TRAIN_ARGS:
             arg_given = arg.key in self._kwargs
 
@@ -167,11 +200,97 @@ class OnmtTrainCommand:
         """
         return self._build_cmd()
 
-    def save_to_config_cmd(self, config_file: PathLike) -> List[str]:
+    def is_valid_kwarg_value(self, kwarg, value) -> bool:
+        # NOTE: upgrade to v.3.5.1
+        # A lot of the code below is from self._build_cmd()
+        # In theory, self._build_cmd() could be deprecated but to avoid breaking something,
+        # it will stay until 100% sure
+        # Here we jsut need the checks and not construct a command
+        # TODO: assess deprecation of self._build_cmd()
+
+        # Check if argument is in ONMT_TRAIN_ARGS
+        for arg in ONMT_TRAIN_ARGS:
+            if arg.key == kwarg:
+                onmt_train_kwarg = arg
+
+        try:
+            onmt_train_kwarg
+        except NameError:
+            NameError(f"Argument {kwarg} doesn't exist in ONMT_TRAIN_ARGS.")
+
+        # Check argument is needed for command
+        if self._command_type not in onmt_train_kwarg.needed_for:
+            raise ValueError(
+                f'"{value}" value given for arg {kwarg}, but not necessary for command {self._command_type}'
+            )
+        # Check if argument has no default and needs a value
+        if onmt_train_kwarg.default is None and value is None:
+            raise ValueError(f"No value given for {kwarg} and needs one.")
+
+        return True
+
+    def save_to_config_cmd(self, config_file_path: PathLike) -> None:
         """
-        Return the command for saving the config to a file.
+        Save the training config to a file.
+        See https://opennmt.net/OpenNMT-py/quickstart.html part 2
         """
-        return self._build_cmd() + ["-save_config", str(config_file)]
+        # Build train config content, it will not include defaults not specified in cli
+        # See structure https://opennmt.net/OpenNMT-py/quickstart.html (Step 2: Train)
+        train_config: Dict[str, Any] = {}
+
+        # GPUs
+        if torch.cuda.is_available() and self._no_gpu is False:
+            train_config["gpu_ranks"] = [0]
+
+        for arg in ONMT_TRAIN_ARGS:
+            arg_given = arg.key in self._kwargs
+
+            if arg_given:
+                train_config[arg.key] = self._kwargs[arg.key]
+            else:
+                train_config[arg.key] = arg.default
+
+        # Dump all cli arguments to dict
+        # for kwarg, value in self._kwargs.items():
+        #     if self.is_valid_kwarg_value(kwarg, value):
+        #         train_config[kwarg] = value
+        #     else:
+        #         raise ValueError(f'"Value {value}" for argument {kwarg} is invalid')
+
+        # Reformat "data" argument as in ONMT-py v.3.5.0
+        path_save_prepr_data = train_config["data"]
+        train_config["save_data"] = str(path_save_prepr_data)
+        # TODO: update to > 1 corpus
+        train_config["data"] = {"corpus_1": {}, "valid": {}}
+
+        # get data files path, caution depends on task because ONMT preprocessed files in v.3.5.1 aren't fully processed as with earlier versions
+        corpus_path_src, corpus_path_tgt, valid_path_src, valid_path_tgt = (
+            get_paths_src_tgt(
+                dir=path_save_prepr_data.parent.parent, model_task=self.model_task
+            )
+        )
+
+        train_config["data"]["corpus_1"]["path_src"] = corpus_path_src
+        train_config["data"]["corpus_1"]["path_tgt"] = corpus_path_tgt
+        train_config["data"]["valid"]["path_src"] = valid_path_src
+        train_config["data"]["valid"]["path_tgt"] = valid_path_tgt
+
+        train_config["src_vocab"] = str(
+            train_config["src_vocab"]
+        )  # avoid posix bad format in yaml
+        train_config["tgt_vocab"] = str(
+            train_config["tgt_vocab"]
+        )  # avoid posix bad format in yaml
+        train_config["save_model"] = str(
+            train_config["save_model"]
+        )  # avoid posix bad format in yaml
+
+        # share_vocab
+        train_config["share_vocab"] = str(True)
+
+        # Dump to config.yaml
+        with open(config_file_path, "w+") as file:
+            yaml.dump(train_config, file)
 
     @staticmethod
     def execute_from_config_cmd(config_file: PathLike) -> List[str]:
@@ -185,11 +304,13 @@ class OnmtTrainCommand:
         cls,
         batch_size: int,
         data: PathLike,
+        src_vocab: Path,
+        tgt_vocab: Path,
         dropout: float,
         heads: int,
         layers: int,
         learning_rate: float,
-        rnn_size: int,
+        hidden_size: int,
         save_model: PathLike,
         seed: int,
         train_steps: int,
@@ -198,6 +319,7 @@ class OnmtTrainCommand:
         word_vec_size: int,
         no_gpu: bool,
         data_weights: Tuple[int, ...],
+        model_task: str,
         keep_checkpoint: int = -1,
     ) -> "OnmtTrainCommand":
         return cls(
@@ -206,18 +328,21 @@ class OnmtTrainCommand:
             data_weights=data_weights,
             batch_size=batch_size,
             data=data,
+            src_vocab=src_vocab,
+            tgt_vocab=tgt_vocab,
             dropout=dropout,
             heads=heads,
             keep_checkpoint=keep_checkpoint,
             layers=layers,
             learning_rate=learning_rate,
-            rnn_size=rnn_size,
+            hidden_size=hidden_size,
             save_model=save_model,
             seed=seed,
             train_steps=train_steps,
             transformer_ff=transformer_ff,
             warmup_steps=warmup_steps,
             word_vec_size=word_vec_size,
+            model_task=model_task,
         )
 
     @classmethod
@@ -232,6 +357,7 @@ class OnmtTrainCommand:
         train_steps: int,
         no_gpu: bool,
         data_weights: Tuple[int, ...],
+        model_task: str,
         keep_checkpoint: int = -1,
     ) -> "OnmtTrainCommand":
         return cls(
@@ -247,6 +373,7 @@ class OnmtTrainCommand:
             seed=seed,
             train_from=train_from,
             train_steps=train_steps,
+            model_task=model_task,
         )
 
     @classmethod
@@ -265,15 +392,18 @@ class OnmtTrainCommand:
         data_weights: Tuple[int, ...],
         report_every: int,
         save_checkpoint_steps: int,
+        model_task: str,
         keep_checkpoint: int = -1,
-        rnn_size: Optional[int] = None,
+        hidden_size: Optional[int] = None,
     ) -> "OnmtTrainCommand":
-        if rnn_size is None:
+        if hidden_size is None:
             # In principle, the rnn_size should not be needed for finetuning. However,
             # when resetting the decay algorithm for the learning rate, this value
             # is necessary - and does not get it from the model checkpoint (OpenNMT bug).
-            rnn_size = get_model_rnn_size(train_from)
-            logger.info(f"Loaded the value of rnn_size from the model: {rnn_size}.")
+            # rnn_size = get_model_rnn_size(train_from)
+            logger.info(
+                f"Loaded the value of hidden_size from the model: {hidden_size}."
+            )
 
         return cls(
             command_type=RxnCommand.F,
@@ -285,7 +415,7 @@ class OnmtTrainCommand:
             keep_checkpoint=keep_checkpoint,
             learning_rate=learning_rate,
             reset_optim="all",
-            rnn_size=rnn_size,
+            hidden_size=hidden_size,
             save_model=save_model,
             seed=seed,
             train_from=train_from,
@@ -293,6 +423,7 @@ class OnmtTrainCommand:
             warmup_steps=warmup_steps,
             report_every=report_every,
             save_checkpoint_steps=save_checkpoint_steps,
+            model_task=model_task,
         )
 
 

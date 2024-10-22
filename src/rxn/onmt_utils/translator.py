@@ -1,6 +1,8 @@
 from argparse import Namespace
 from typing import Any, Iterable, Iterator, List, Optional, Union
 
+import torch
+
 from .internal_translation_utils import RawTranslator, TranslationResult, get_onmt_opt
 
 
@@ -27,6 +29,7 @@ class Translator:
         assert len(translations) == 1
         return translations[0]
 
+    @torch.no_grad()
     def translate_sentences(self, sentences: Iterable[str]) -> List[str]:
         """
         Translate multiple sentences.
@@ -34,6 +37,7 @@ class Translator:
         translations = self.translate_multiple_with_scores(sentences)
         return [t[0].text for t in translations]
 
+    @torch.no_grad()
     def translate_multiple_with_scores(
         self, sentences: Iterable[str], n_best: Optional[int] = None
     ) -> Iterator[List[TranslationResult]]:
@@ -51,7 +55,6 @@ class Translator:
         translations = self.onmt_translator.translate_sentences_with_onmt(
             sentences, **additional_opt_kwargs
         )
-
         yield from translations
 
     @classmethod

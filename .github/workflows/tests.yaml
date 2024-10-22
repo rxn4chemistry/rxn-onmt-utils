@@ -6,12 +6,15 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     name: Style, mypy
+    strategy:
+      matrix:
+        python-version: ["3.11"]
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.7
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
-        python-version: 3.7
+        python-version: ${{ matrix.python-version }}
     - name: Install Dependencies
       run: pip install -e .[dev]
     - name: Check black
