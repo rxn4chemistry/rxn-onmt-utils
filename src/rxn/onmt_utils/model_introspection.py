@@ -2,7 +2,8 @@ from argparse import Namespace
 from typing import Any, Dict, List
 
 import torch
-from onmt.inputters.text_dataset import TextMultiField
+
+#from onmt.inputters.text_dataset import TextMultiField
 from rxn.utilities.files import PathLike
 
 
@@ -29,6 +30,14 @@ def get_preprocessed_vocab(vocab_path: PathLike) -> List[str]:
     return _torch_vocab_to_list(vocab)
 
 
+def read_vocab_file(file_path):
+    vocab = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            vocab.append(line.split()[0])  # Split each line and take the first element
+    return vocab
+
+
 def model_vocab_is_compatible(model_pt: PathLike, vocab_pt: PathLike) -> bool:
     """
     Determine whether the vocabulary contained in a model checkpoint contains
@@ -39,20 +48,20 @@ def model_vocab_is_compatible(model_pt: PathLike, vocab_pt: PathLike) -> bool:
         vocab_pt: vocab file, such as `preprocessed.vocab.pt`.
     """
     model_vocab = set(get_model_vocab(model_pt))
-    data_vocab = set(get_preprocessed_vocab(vocab_pt))
+    data_vocab = set(read_vocab_file(vocab_pt))
     return data_vocab.issubset(model_vocab)
 
 
 def _torch_vocab_to_list(vocab: Dict[str, Any]) -> List[str]:
-    src_vocab = _multifield_vocab_to_list(vocab["src"])
-    tgt_vocab = _multifield_vocab_to_list(vocab["tgt"])
+    src_vocab = vocab["src"] #_multifield_vocab_to_list(vocab["src"])
+    tgt_vocab = vocab["tgt"] #_multifield_vocab_to_list(vocab["tgt"])
     if src_vocab != tgt_vocab:
         raise RuntimeError("Handling of different src/tgt vocab not implemented")
     return src_vocab
 
 
-def _multifield_vocab_to_list(multifield: TextMultiField) -> List[str]:
-    return multifield.base_field.vocab.itos[:]
+#def _multifield_vocab_to_list(multifield: TextMultiField) -> List[str]:
+#    return multifield.base_field.vocab.itos[:]
 
 
 def get_model_opt(model_path: PathLike) -> Namespace:
