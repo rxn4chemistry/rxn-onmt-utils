@@ -21,6 +21,7 @@ def translate(
     batch_size: int,
     gpu: bool,
     as_external_command: bool,
+    **kwargs,
 ) -> None:
     """
     Run translate script.
@@ -69,6 +70,7 @@ def translate(
         max_length=max_length,
         batch_size=batch_size,
         gpu=gpu,
+        **kwargs,
     )
 
     logger.info("Translation successful.")
@@ -84,6 +86,7 @@ def translate_as_python_code(
     max_length: int,
     batch_size: int,
     gpu: bool,
+    **kwargs,
 ) -> None:
     """
     Translate directly from Python - not by executing the OpenNMT command as a subprocess.
@@ -108,6 +111,7 @@ def translate_as_python_code(
         max_length=max_length,
         batch_size=batch_size,
         gpu=0 if gpu else -1,
+        **kwargs,
     )
 
     src_iterator = iterate_lines_from_file(src)
@@ -136,6 +140,7 @@ def translate_as_external_command(
     max_length: int,
     batch_size: int,
     gpu: bool,
+    **kwargs,
 ) -> None:
     """
     Translate by executing the OpenNMT command as a subprocess.
@@ -172,6 +177,10 @@ def translate_as_external_command(
         command.extend(["-tgt", str(tgt)])
     if gpu:
         command.extend(["-gpu", "0"])
+
+    # Add kwargs to the command list
+    for key, value in kwargs.items():
+        command.extend([f"-{key}", str(value)])
 
     command_str = " ".join(command)
     logger.info(f"Running translation with command: {command_str}")
